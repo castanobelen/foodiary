@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../lib/store";
 import type { Food } from "../lib/types";
-import { round } from "../lib/utils";
+import { portionToPer100, round } from "../lib/utils";
 
 export function FoodsPage() {
   const store = useStore();
@@ -83,20 +83,23 @@ export function FoodsPage() {
 function CreateFoodModal({ onClose }: { onClose: () => void }) {
   const store = useStore();
   const [name, setName] = useState("");
+  const [portion, setPortion] = useState("100");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
 
-  const valid = name.trim() && calories !== "";
+  const portionG = parseFloat(portion) || 0;
+  const valid = name.trim() && calories !== "" && portionG > 0;
 
   const save = () => {
     const food: Omit<Food, "id" | "custom"> = {
       name: name.trim(),
-      calories: parseFloat(calories) || 0,
-      protein: parseFloat(protein) || 0,
-      carbs: parseFloat(carbs) || 0,
-      fat: parseFloat(fat) || 0,
+      calories: portionToPer100(parseFloat(calories) || 0, portionG),
+      protein: portionToPer100(parseFloat(protein) || 0, portionG),
+      carbs: portionToPer100(parseFloat(carbs) || 0, portionG),
+      fat: portionToPer100(parseFloat(fat) || 0, portionG),
+      gramsPerUnit: portionG,
     };
     store.addCustomFood(food);
     onClose();
@@ -112,12 +115,27 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <p className="muted" style={{ marginTop: 0, fontSize: "0.85rem" }}>
-          Valores <strong>por 100 g</strong>.
+          Indica el <strong>tamaño de la porción</strong> y sus valores. La app los
+          guarda por 100 g automáticamente.
         </p>
         <div className="field">
           <label>Nombre</label>
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
         </div>
+        <div className="field">
+          <label>Tamaño de la porción (g)</label>
+          <input
+            className="input"
+            type="number"
+            inputMode="decimal"
+            min="1"
+            value={portion}
+            onChange={(e) => setPortion(e.target.value)}
+          />
+        </div>
+        <p className="muted" style={{ fontSize: "0.82rem", margin: "0 0 8px" }}>
+          Valores para {portionG > 0 ? `${portionG} g` : "la porción"}:
+        </p>
         <div className="grid-2">
           <div className="field">
             <label>Calorías (kcal)</label>

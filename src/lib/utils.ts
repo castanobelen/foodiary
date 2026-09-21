@@ -72,6 +72,12 @@ export function macroCalories(protein: number, carbs: number, fat: number) {
   };
 }
 
+// Convierte un valor medido para una porción de X g a su equivalente por 100 g
+export function portionToPer100(value: number, portionGrams: number): number {
+  if (portionGrams <= 0) return 0;
+  return round((value * 100) / portionGrams, 2);
+}
+
 // Objetivos de macros por defecto a partir de calorías (40/30/30 aprox.)
 export function defaultTargets(calories = 2000): Targets {
   return {
