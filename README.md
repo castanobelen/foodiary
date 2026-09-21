@@ -12,6 +12,7 @@ Sin cuentas, sin servidores y sin conexión necesaria.
 
 - **📖 Diario de comidas** — registra alimentos en desayuno, comida, cena y snacks;
   anillo de calorías restantes y barras de progreso de macros frente a tus objetivos.
+  Toca cualquier alimento del diario para **editar la cantidad** (recalcula kcal y macros).
 - **⚖️ Peso** — registra tu peso por día, gráfico de evolución (30 / 90 días / 1 año / todo),
   línea de meta, variación desde el inicio, distancia al objetivo e IMC.
 - **🥑 Alimentos** — base de datos de alimentos habituales **clasificados por cocción**
