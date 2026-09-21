@@ -265,6 +265,9 @@ a {
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
   gap: 10px;
+  /* color explícito: si es un <button>, no debe heredar el color de texto del
+     sistema (que en modo oscuro del SO se vuelve claro y "desaparece") */
+  color: var(--text);
 }
 .food-item:last-child {
   border-bottom: none;
@@ -274,6 +277,7 @@ a {
 }
 .food-item .food-name {
   font-weight: 600;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
