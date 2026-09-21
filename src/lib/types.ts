@@ -53,7 +53,15 @@ export interface Targets {
 
 export interface Profile {
   name: string;
+  sex?: "male" | "female";
+  age?: number;
   heightCm: number;
+  activity?:
+    | "sedentary"
+    | "light"
+    | "moderate"
+    | "active"
+    | "very_active";
   startWeight: number;
   goalWeight: number;
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useStore } from "../lib/store";
 import type { Targets } from "../lib/types";
 import { defaultTargets, macroCalories, round } from "../lib/utils";
+import { GoalCalculator } from "../components/GoalCalculator";
 
 export function SettingsPage() {
   const store = useStore();
@@ -88,6 +89,16 @@ export function SettingsPage() {
           {msg}
         </div>
       )}
+
+      <GoalCalculator
+        onApplied={(t) => {
+          setCal(String(t.calories));
+          setProt(String(t.protein));
+          setCarb(String(t.carbs));
+          setFat(String(t.fat));
+          flash("Objetivos calculados y aplicados ✓");
+        }}
+      />
 
       <div className="card">
         <h2>Objetivos diarios</h2>

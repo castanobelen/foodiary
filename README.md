@@ -16,6 +16,9 @@ Sin cuentas, sin servidores y sin conexión necesaria.
   línea de meta, variación desde el inicio, distancia al objetivo e IMC.
 - **🥑 Alimentos** — base de datos con ~50 alimentos habituales (valores por 100 g) y
   creación de alimentos propios reutilizables.
+- **🎯 Calculadora de objetivos** — a partir de sexo, edad, altura, peso actual,
+  peso objetivo, nivel de actividad y plazo, estima tus **calorías diarias** y el
+  **reparto de macros** (Mifflin-St Jeor + TDEE) y lo aplica como tus objetivos.
 - **⚙️ Ajustes** — objetivos diarios de calorías y macros (con presets 40/30/30),
   perfil (altura, peso objetivo) y **exportar / importar / borrar** tus datos en JSON.
 
