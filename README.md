@@ -14,8 +14,11 @@ Sin cuentas, sin servidores y sin conexión necesaria.
   anillo de calorías restantes y barras de progreso de macros frente a tus objetivos.
 - **⚖️ Peso** — registra tu peso por día, gráfico de evolución (30 / 90 días / 1 año / todo),
   línea de meta, variación desde el inicio, distancia al objetivo e IMC.
-- **🥑 Alimentos** — base de datos con ~50 alimentos habituales (valores por 100 g) y
-  creación de alimentos propios reutilizables.
+- **🥑 Alimentos** — base de datos de alimentos habituales **clasificados por cocción**
+  (crudo, cocido, plancha, horno, frito, vapor, natural), con filtro por método y
+  variantes crudo/cocido donde los macros cambian (arroz, pasta, legumbres, carnes…).
+  Buscas, eliges la cantidad en gramos y ves al momento calorías y macros. También
+  puedes crear alimentos propios (con su porción y cocción) reutilizables.
 - **🎯 Calculadora de objetivos** — a partir de sexo, edad, altura, peso actual,
   peso objetivo, nivel de actividad y plazo, estima tus **calorías diarias** y el
   **reparto de macros** (Mifflin-St Jeor + TDEE) y lo aplica como tus objetivos.

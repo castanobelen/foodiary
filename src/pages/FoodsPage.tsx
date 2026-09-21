@@ -1,15 +1,30 @@
 import { useMemo, useState } from "react";
 import { useStore } from "../lib/store";
-import type { Food } from "../lib/types";
+import type { CookingMethod, Food } from "../lib/types";
+import { COOKING, cookingMeta } from "../lib/types";
 import { portionToPer100, round } from "../lib/utils";
+
+function CookBadge({ food }: { food: Food }) {
+  const cook = cookingMeta(food.cooking);
+  if (!cook) return null;
+  return (
+    <span className="cook-badge">
+      {cook.icon} {cook.label}
+    </span>
+  );
+}
 
 export function FoodsPage() {
   const store = useStore();
   const [query, setQuery] = useState("");
+  const [cookFilter, setCookFilter] = useState<CookingMethod | "all">("all");
   const [creating, setCreating] = useState(false);
 
   const custom = store.data.foods;
-  const results = useMemo(() => store.searchFoods(query), [store, query]);
+  const results = useMemo(
+    () => store.searchFoods(query, cookFilter),
+    [store, query, cookFilter],
+  );
 
   return (
     <div>
@@ -31,7 +46,9 @@ export function FoodsPage() {
             {custom.map((f) => (
               <div className="food-item" key={f.id}>
                 <div className="food-main">
-                  <div className="food-name">{f.name}</div>
+                  <div className="food-name">
+                    {f.name} <CookBadge food={f} />
+                  </div>
                   <div className="food-sub">
                     {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (100 g)
                   </div>
@@ -57,12 +74,31 @@ export function FoodsPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div style={{ marginTop: 8 }}>
+        <div className="chips">
+          <button
+            className={cookFilter === "all" ? "chip active" : "chip"}
+            onClick={() => setCookFilter("all")}
+          >
+            Todos
+          </button>
+          {COOKING.map((c) => (
+            <button
+              key={c.id}
+              className={cookFilter === c.id ? "chip active" : "chip"}
+              onClick={() => setCookFilter(c.id)}
+            >
+              {c.icon} {c.label}
+            </button>
+          ))}
+        </div>
+        <div style={{ marginTop: 4 }}>
+          {results.length === 0 && <div className="empty">Sin resultados con ese filtro.</div>}
           {results.map((f) => (
             <div className="food-item" key={f.id}>
               <div className="food-main">
                 <div className="food-name">
-                  {f.name} {f.custom && <span className="pill">Propio</span>}
+                  {f.name} <CookBadge food={f} />{" "}
+                  {f.custom && <span className="pill">Propio</span>}
                 </div>
                 <div className="food-sub">
                   {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (100 g)
@@ -88,6 +124,7 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [cooking, setCooking] = useState<CookingMethod>("natural");
 
   const portionG = parseFloat(portion) || 0;
   const valid = name.trim() && calories !== "" && portionG > 0;
@@ -95,6 +132,7 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
   const save = () => {
     const food: Omit<Food, "id" | "custom"> = {
       name: name.trim(),
+      cooking,
       calories: portionToPer100(parseFloat(calories) || 0, portionG),
       protein: portionToPer100(parseFloat(protein) || 0, portionG),
       carbs: portionToPer100(parseFloat(carbs) || 0, portionG),
@@ -121,6 +159,16 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
         <div className="field">
           <label>Nombre</label>
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+        </div>
+        <div className="field">
+          <label>Cocción</label>
+          <select className="select" value={cooking} onChange={(e) => setCooking(e.target.value as CookingMethod)}>
+            {COOKING.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.icon} {c.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="field">
           <label>Tamaño de la porción (g)</label>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { Food, MealType } from "../lib/types";
-import { MEALS } from "../lib/types";
+import type { CookingMethod, Food, MealType } from "../lib/types";
+import { COOKING, cookingMeta, MEALS } from "../lib/types";
 import { useStore } from "../lib/store";
 import { macrosForGrams, portionToPer100, round } from "../lib/utils";
 
@@ -14,11 +14,15 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
   const store = useStore();
   const [meal, setMeal] = useState<MealType>(initialMeal);
   const [query, setQuery] = useState("");
+  const [cookFilter, setCookFilter] = useState<CookingMethod | "all">("all");
   const [selected, setSelected] = useState<Food | null>(null);
   const [grams, setGrams] = useState("100");
   const [creating, setCreating] = useState(false);
 
-  const results = useMemo(() => store.searchFoods(query), [store, query]);
+  const results = useMemo(
+    () => store.searchFoods(query, cookFilter),
+    [store, query, cookFilter],
+  );
 
   if (creating) {
     return (
@@ -41,9 +45,16 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
     const perUnit = selected.gramsPerUnit;
     return (
       <ModalShell title={selected.name} onClose={onClose}>
-        <button className="btn-ghost" style={{ marginBottom: 12 }} onClick={() => setSelected(null)}>
-          ‹ Cambiar alimento
-        </button>
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <button className="btn-ghost" onClick={() => setSelected(null)}>
+            ‹ Cambiar alimento
+          </button>
+          {cookingMeta(selected.cooking) && (
+            <span className="cook-badge">
+              {cookingMeta(selected.cooking)!.icon} {cookingMeta(selected.cooking)!.label}
+            </span>
+          )}
+        </div>
 
         <div className="field">
           <label>Comida</label>
@@ -130,33 +141,61 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
         onChange={(e) => setQuery(e.target.value)}
         autoFocus
       />
-      <button className="btn-ghost" style={{ width: "100%", margin: "12px 0" }} onClick={() => setCreating(true)}>
+
+      <div className="chips">
+        <button
+          className={cookFilter === "all" ? "chip active" : "chip"}
+          onClick={() => setCookFilter("all")}
+        >
+          Todos
+        </button>
+        {COOKING.map((c) => (
+          <button
+            key={c.id}
+            className={cookFilter === c.id ? "chip active" : "chip"}
+            onClick={() => setCookFilter(c.id)}
+          >
+            {c.icon} {c.label}
+          </button>
+        ))}
+      </div>
+
+      <button className="btn-ghost" style={{ width: "100%", margin: "4px 0 12px" }} onClick={() => setCreating(true)}>
         + Crear alimento propio
       </button>
 
       <div>
         {results.length === 0 && <div className="empty">Sin resultados. Prueba a crear el alimento.</div>}
-        {results.map((f) => (
-          <button
-            key={f.id}
-            className="food-item"
-            style={{ width: "100%", background: "transparent", border: "none", textAlign: "left" }}
-            onClick={() => {
-              setSelected(f);
-              setGrams(String(f.gramsPerUnit ?? 100));
-            }}
-          >
-            <div className="food-main">
-              <div className="food-name">
-                {f.name} {f.custom && <span className="pill">Propio</span>}
+        {results.map((f) => {
+          const cook = cookingMeta(f.cooking);
+          return (
+            <button
+              key={f.id}
+              className="food-item"
+              style={{ width: "100%", background: "transparent", border: "none", textAlign: "left" }}
+              onClick={() => {
+                setSelected(f);
+                setGrams(String(f.gramsPerUnit ?? 100));
+              }}
+            >
+              <div className="food-main">
+                <div className="food-name">
+                  {f.name}{" "}
+                  {cook && (
+                    <span className="cook-badge">
+                      {cook.icon} {cook.label}
+                    </span>
+                  )}{" "}
+                  {f.custom && <span className="pill">Propio</span>}
+                </div>
+                <div className="food-sub">
+                  {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (por 100 g)
+                </div>
               </div>
-              <div className="food-sub">
-                {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (por 100 g)
-              </div>
-            </div>
-            <span style={{ color: "var(--green)", fontSize: "1.3rem" }}>＋</span>
-          </button>
-        ))}
+              <span style={{ color: "var(--green)", fontSize: "1.3rem" }}>＋</span>
+            </button>
+          );
+        })}
       </div>
     </ModalShell>
   );
@@ -200,6 +239,7 @@ function CreateFoodForm({
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [cooking, setCooking] = useState<CookingMethod>("natural");
 
   const portionG = parseFloat(portion) || 0;
   const valid = name.trim() && calories !== "" && portionG > 0;
@@ -213,6 +253,16 @@ function CreateFoodForm({
       <div className="field">
         <label>Nombre</label>
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      </div>
+      <div className="field">
+        <label>Cocción</label>
+        <select className="select" value={cooking} onChange={(e) => setCooking(e.target.value as CookingMethod)}>
+          {COOKING.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.icon} {c.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="field">
         <label>Tamaño de la porción (g)</label>
@@ -257,6 +307,7 @@ function CreateFoodForm({
           onClick={() => {
             const food = store.addCustomFood({
               name: name.trim(),
+              cooking,
               calories: portionToPer100(parseFloat(calories) || 0, portionG),
               protein: portionToPer100(parseFloat(protein) || 0, portionG),
               carbs: portionToPer100(parseFloat(carbs) || 0, portionG),

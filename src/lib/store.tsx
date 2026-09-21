@@ -8,6 +8,7 @@ import {
 } from "react";
 import type {
   AppData,
+  CookingMethod,
   DiaryEntry,
   Food,
   MealType,
@@ -15,6 +16,7 @@ import type {
   Targets,
   WeightEntry,
 } from "./types";
+import { cookingMeta } from "./types";
 import { FOOD_DATABASE } from "./foodDatabase";
 import { defaultTargets, macrosForGrams, uid } from "./utils";
 
@@ -47,7 +49,7 @@ interface Store {
   data: AppData;
   // alimentos (base + personalizados)
   allFoods: Food[];
-  searchFoods: (q: string) => Food[];
+  searchFoods: (q: string, cooking?: CookingMethod | "all") => Food[];
   addCustomFood: (food: Omit<Food, "id" | "custom">) => Food;
   deleteCustomFood: (id: string) => void;
   // diario
@@ -87,14 +89,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       data,
       allFoods,
 
-      searchFoods(q: string) {
+      searchFoods(q: string, cooking: CookingMethod | "all" = "all") {
         const term = q.trim().toLowerCase();
-        if (!term) return allFoods.slice(0, 30);
-        return allFoods
-          .filter((f) =>
+        let list = allFoods;
+        if (cooking !== "all") {
+          list = list.filter((f) => f.cooking === cooking);
+        }
+        if (term) {
+          list = list.filter((f) =>
             (f.name + " " + (f.brand ?? "")).toLowerCase().includes(term),
-          )
-          .slice(0, 40);
+          );
+        }
+        return list.slice(0, 60);
       },
 
       addCustomFood(food) {
@@ -109,12 +115,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       addDiaryEntry(date, meal, food, grams) {
         const m = macrosForGrams(food, grams);
+        const cook = cookingMeta(food.cooking);
+        const foodName =
+          cook && food.cooking !== "natural"
+            ? `${food.name} (${cook.label.toLowerCase()})`
+            : food.name;
         const entry: DiaryEntry = {
           id: uid(),
           date,
           meal,
           foodId: food.id,
-          foodName: food.name,
+          foodName,
           grams,
           ...m,
         };

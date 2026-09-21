@@ -9,6 +9,30 @@ export const MEALS: { id: MealType; label: string; icon: string }[] = [
   { id: "snacks", label: "Snacks", icon: "🍎" },
 ];
 
+// Método de cocción con el que se pesa el alimento (afecta a los macros por 100 g)
+export type CookingMethod =
+  | "natural"
+  | "crudo"
+  | "cocido"
+  | "plancha"
+  | "horno"
+  | "frito"
+  | "vapor";
+
+export const COOKING: { id: CookingMethod; label: string; icon: string }[] = [
+  { id: "natural", label: "Natural", icon: "🥗" },
+  { id: "crudo", label: "Crudo", icon: "🥩" },
+  { id: "cocido", label: "Cocido", icon: "🍲" },
+  { id: "plancha", label: "Plancha", icon: "🔥" },
+  { id: "horno", label: "Horno", icon: "🥖" },
+  { id: "frito", label: "Frito", icon: "🍳" },
+  { id: "vapor", label: "Vapor", icon: "💨" },
+];
+
+export function cookingMeta(id?: CookingMethod) {
+  return COOKING.find((c) => c.id === id);
+}
+
 // Los macros se almacenan siempre por 100 g (o por 100 ml) del alimento.
 // Para alimentos "por unidad" (ej. 1 huevo) se usa gramsPerUnit.
 export interface Food {
@@ -20,6 +44,8 @@ export interface Food {
   protein: number;
   carbs: number;
   fat: number;
+  // método de cocción con el que se pesa (crudo, cocido, plancha…)
+  cooking?: CookingMethod;
   // si el alimento se cuenta en unidades, cuántos gramos pesa 1 unidad
   gramsPerUnit?: number;
   custom?: boolean; // true si lo creó el usuario
