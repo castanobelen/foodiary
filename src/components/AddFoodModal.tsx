@@ -3,7 +3,7 @@ import type { CookingMethod, Food, MealType } from "../lib/types";
 import { COOKING, cookingMeta, MEALS } from "../lib/types";
 import { useStore } from "../lib/store";
 import { searchBranded } from "../lib/openFoodFacts";
-import { macrosForGrams, portionToPer100, round } from "../lib/utils";
+import { foodLabel, macrosForGrams, portionToPer100, round } from "../lib/utils";
 
 interface Props {
   date: string;
@@ -87,7 +87,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
     const m = macrosForGrams(selected, g);
     const perUnit = selected.gramsPerUnit;
     return (
-      <ModalShell title={selected.brand ? `${selected.name} · ${selected.brand}` : selected.name} onClose={onClose}>
+      <ModalShell title={foodLabel(selected)} onClose={onClose}>
         <div className="row-between" style={{ marginBottom: 12 }}>
           <button className="btn-ghost" onClick={() => setSelected(null)}>
             ‹ Cambiar alimento
@@ -272,8 +272,7 @@ function FoodResult({
     >
       <div className="food-main">
         <div className="food-name">
-          {food.name}{" "}
-          {food.brand && <span className="pill">{food.brand}</span>}{" "}
+          {foodLabel(food)}{" "}
           {cook && !online && (
             <span className="cook-badge">
               {cook.icon} {cook.label}

@@ -30,6 +30,11 @@ export function formatDateLabel(iso: string): string {
   });
 }
 
+// Nombre a mostrar: incluye la marca en el propio nombre (sin etiqueta aparte)
+export function foodLabel(food: { name: string; brand?: string }): string {
+  return food.brand ? `${food.name} ${food.brand}` : food.name;
+}
+
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 }

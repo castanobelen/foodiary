@@ -18,7 +18,7 @@ import type {
 } from "./types";
 import { cookingMeta } from "./types";
 import { FOOD_DATABASE } from "./foodDatabase";
-import { defaultTargets, macrosForGrams, uid } from "./utils";
+import { defaultTargets, foodLabel, macrosForGrams, uid } from "./utils";
 
 const STORAGE_KEY = "foodiary.data.v1";
 const DATA_VERSION = 1;
@@ -133,10 +133,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addDiaryEntry(date, meal, food, grams) {
         const m = macrosForGrams(food, grams);
         const cook = cookingMeta(food.cooking);
+        const label = foodLabel(food);
         const foodName =
           cook && food.cooking !== "natural"
-            ? `${food.name} (${cook.label.toLowerCase()})`
-            : food.name;
+            ? `${label} (${cook.label.toLowerCase()})`
+            : label;
         const entry: DiaryEntry = {
           id: uid(),
           date,

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useStore } from "../lib/store";
 import type { CookingMethod, Food } from "../lib/types";
 import { COOKING, cookingMeta } from "../lib/types";
-import { portionToPer100, round } from "../lib/utils";
+import { foodLabel, portionToPer100, round } from "../lib/utils";
 
 function CookBadge({ food }: { food: Food }) {
   const cook = cookingMeta(food.cooking);
@@ -47,7 +47,7 @@ export function FoodsPage() {
               <div className="food-item" key={f.id}>
                 <div className="food-main">
                   <div className="food-name">
-                    {f.name} {f.brand && <span className="pill">{f.brand}</span>} <CookBadge food={f} />
+                    {foodLabel(f)} <CookBadge food={f} />
                   </div>
                   <div className="food-sub">
                     {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (100 g)
@@ -97,7 +97,7 @@ export function FoodsPage() {
             <div className="food-item" key={f.id}>
               <div className="food-main">
                 <div className="food-name">
-                  {f.name} {f.brand && <span className="pill">{f.brand}</span>} <CookBadge food={f} />{" "}
+                  {foodLabel(f)} <CookBadge food={f} />{" "}
                   {f.custom && !f.brand && <span className="pill">Propio</span>}
                 </div>
                 <div className="food-sub">

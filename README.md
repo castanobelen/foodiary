@@ -21,11 +21,18 @@ Sin cuentas, sin servidores y sin conexión necesaria.
   milanesas…). Buscas (sin importar acentos), eliges la cantidad en gramos y ves al
   momento calorías y macros. También puedes crear alimentos propios (con marca, porción
   y cocción) reutilizables.
-- **🏷️ Productos de marca** — productos de marca incluidos (La Serenísima, Ser, Sancor,
-  Mendicrim…) y una pestaña **"Marcas (online)"** que busca en
-  [Open Food Facts](https://world.openfoodfacts.org) (requiere conexión; degrada con
-  aviso si la red no está disponible). Los productos elegidos online se guardan en
-  "Mis alimentos" para reutilizarlos.
+- **🏷️ Productos de marca** — la marca se muestra en el propio nombre
+  (ej. *Leche Protein La Serenísima*). Los productos de marca incluidos localmente
+  solo llevan **valores verificados de la tabla nutricional real**; para cualquier otra
+  marca, la pestaña **"Marcas (online)"** busca en
+  [Open Food Facts](https://world.openfoodfacts.org) (datos de etiqueta reales; requiere
+  conexión y degrada con aviso si la red no está disponible), y lo elegido se guarda en
+  "Mis alimentos" para reutilizarlo.
+
+> Nota sobre los datos: los alimentos **genéricos** de la base llevan valores
+> nutricionales **aproximados** de referencia (composición estándar por 100 g). Los
+> productos **de marca** solo se incluyen con valores contrastados con la etiqueta
+> oficial de la marca.
 - **🎯 Calculadora de objetivos** — a partir de sexo, edad, altura, peso actual,
   peso objetivo, nivel de actividad y plazo, estima tus **calorías diarias** y el
   **reparto de macros** (Mifflin-St Jeor + TDEE) y lo aplica como tus objetivos.
