@@ -47,7 +47,7 @@ export function FoodsPage() {
               <div className="food-item" key={f.id}>
                 <div className="food-main">
                   <div className="food-name">
-                    {f.name} <CookBadge food={f} />
+                    {f.name} {f.brand && <span className="pill">{f.brand}</span>} <CookBadge food={f} />
                   </div>
                   <div className="food-sub">
                     {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (100 g)
@@ -97,8 +97,8 @@ export function FoodsPage() {
             <div className="food-item" key={f.id}>
               <div className="food-main">
                 <div className="food-name">
-                  {f.name} <CookBadge food={f} />{" "}
-                  {f.custom && <span className="pill">Propio</span>}
+                  {f.name} {f.brand && <span className="pill">{f.brand}</span>} <CookBadge food={f} />{" "}
+                  {f.custom && !f.brand && <span className="pill">Propio</span>}
                 </div>
                 <div className="food-sub">
                   {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (100 g)
@@ -119,6 +119,7 @@ export function FoodsPage() {
 function CreateFoodModal({ onClose }: { onClose: () => void }) {
   const store = useStore();
   const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
   const [portion, setPortion] = useState("100");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
@@ -132,6 +133,7 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
   const save = () => {
     const food: Omit<Food, "id" | "custom"> = {
       name: name.trim(),
+      brand: brand.trim() || undefined,
       cooking,
       calories: portionToPer100(parseFloat(calories) || 0, portionG),
       protein: portionToPer100(parseFloat(protein) || 0, portionG),
@@ -159,6 +161,10 @@ function CreateFoodModal({ onClose }: { onClose: () => void }) {
         <div className="field">
           <label>Nombre</label>
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+        </div>
+        <div className="field">
+          <label>Marca (opcional)</label>
+          <input className="input" placeholder="ej. La Serenísima" value={brand} onChange={(e) => setBrand(e.target.value)} />
         </div>
         <div className="field">
           <label>Cocción</label>

@@ -23,6 +23,15 @@ import { defaultTargets, macrosForGrams, uid } from "./utils";
 const STORAGE_KEY = "foodiary.data.v1";
 const DATA_VERSION = 1;
 
+// Normaliza texto para búsqueda: minúsculas y sin acentos
+function normalize(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "");
+}
+
 function defaultData(): AppData {
   return {
     version: DATA_VERSION,
@@ -51,6 +60,7 @@ interface Store {
   allFoods: Food[];
   searchFoods: (q: string, cooking?: CookingMethod | "all") => Food[];
   addCustomFood: (food: Omit<Food, "id" | "custom">) => Food;
+  importFood: (food: Food) => void; // guarda un producto externo (ej. online) con su id
   deleteCustomFood: (id: string) => void;
   // diario
   addDiaryEntry: (date: string, meal: MealType, food: Food, grams: number) => void;
@@ -90,14 +100,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       allFoods,
 
       searchFoods(q: string, cooking: CookingMethod | "all" = "all") {
-        const term = q.trim().toLowerCase();
+        const term = normalize(q);
         let list = allFoods;
         if (cooking !== "all") {
           list = list.filter((f) => f.cooking === cooking);
         }
         if (term) {
           list = list.filter((f) =>
-            (f.name + " " + (f.brand ?? "")).toLowerCase().includes(term),
+            normalize(f.name + " " + (f.brand ?? "")).includes(term),
           );
         }
         return list.slice(0, 60);
@@ -107,6 +117,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const newFood: Food = { ...food, id: "user-" + uid(), custom: true };
         setData((d) => ({ ...d, foods: [newFood, ...d.foods] }));
         return newFood;
+      },
+
+      importFood(food) {
+        setData((d) => {
+          if (d.foods.some((f) => f.id === food.id)) return d;
+          return { ...d, foods: [{ ...food, custom: true }, ...d.foods] };
+        });
       },
 
       deleteCustomFood(id) {

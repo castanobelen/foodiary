@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CookingMethod, Food, MealType } from "../lib/types";
 import { COOKING, cookingMeta, MEALS } from "../lib/types";
 import { useStore } from "../lib/store";
+import { searchBranded } from "../lib/openFoodFacts";
 import { macrosForGrams, portionToPer100, round } from "../lib/utils";
 
 interface Props {
@@ -14,15 +15,57 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
   const store = useStore();
   const [meal, setMeal] = useState<MealType>(initialMeal);
   const [query, setQuery] = useState("");
+  const [source, setSource] = useState<"local" | "online">("local");
   const [cookFilter, setCookFilter] = useState<CookingMethod | "all">("all");
   const [selected, setSelected] = useState<Food | null>(null);
   const [grams, setGrams] = useState("100");
   const [creating, setCreating] = useState(false);
 
+  const [onlineResults, setOnlineResults] = useState<Food[]>([]);
+  const [onlineLoading, setOnlineLoading] = useState(false);
+  const [onlineError, setOnlineError] = useState<string | null>(null);
+
   const results = useMemo(
     () => store.searchFoods(query, cookFilter),
     [store, query, cookFilter],
   );
+
+  // Búsqueda online (Open Food Facts) con debounce y cancelación
+  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (source !== "online") return;
+    const q = query.trim();
+    if (q.length < 2) {
+      setOnlineResults([]);
+      setOnlineError(null);
+      setOnlineLoading(false);
+      return;
+    }
+    setOnlineLoading(true);
+    setOnlineError(null);
+    const ctrl = new AbortController();
+    abortRef.current?.abort();
+    abortRef.current = ctrl;
+    const t = setTimeout(() => {
+      searchBranded(q, ctrl.signal)
+        .then((r) => {
+          setOnlineResults(r);
+          setOnlineLoading(false);
+        })
+        .catch((err) => {
+          if (ctrl.signal.aborted) return;
+          setOnlineError(
+            "No se pudo buscar online. Revisa tu conexión o usa la base de la app / crea el alimento.",
+          );
+          setOnlineLoading(false);
+          void err;
+        });
+    }, 450);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [source, query]);
 
   if (creating) {
     return (
@@ -44,7 +87,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
     const m = macrosForGrams(selected, g);
     const perUnit = selected.gramsPerUnit;
     return (
-      <ModalShell title={selected.name} onClose={onClose}>
+      <ModalShell title={selected.brand ? `${selected.name} · ${selected.brand}` : selected.name} onClose={onClose}>
         <div className="row-between" style={{ marginBottom: 12 }}>
           <button className="btn-ghost" onClick={() => setSelected(null)}>
             ‹ Cambiar alimento
@@ -132,72 +175,118 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
     );
   }
 
+  const pickFood = (f: Food, imported = false) => {
+    if (imported) store.importFood(f);
+    setSelected(f);
+    setGrams(String(f.gramsPerUnit ?? 100));
+  };
+
   return (
     <ModalShell title="Añadir alimento" onClose={onClose}>
+      <div className="segmented" style={{ marginBottom: 12 }}>
+        <button className={source === "local" ? "active" : ""} onClick={() => setSource("local")}>
+          📚 Base de la app
+        </button>
+        <button className={source === "online" ? "active" : ""} onClick={() => setSource("online")}>
+          🌐 Marcas (online)
+        </button>
+      </div>
+
       <input
         className="input"
-        placeholder="Buscar alimento…"
+        placeholder={source === "online" ? "Buscar marca o producto… (ej. Leche Protein Serenísima)" : "Buscar alimento…"}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         autoFocus
       />
 
-      <div className="chips">
-        <button
-          className={cookFilter === "all" ? "chip active" : "chip"}
-          onClick={() => setCookFilter("all")}
-        >
-          Todos
-        </button>
-        {COOKING.map((c) => (
-          <button
-            key={c.id}
-            className={cookFilter === c.id ? "chip active" : "chip"}
-            onClick={() => setCookFilter(c.id)}
-          >
-            {c.icon} {c.label}
-          </button>
-        ))}
-      </div>
-
-      <button className="btn-ghost" style={{ width: "100%", margin: "4px 0 12px" }} onClick={() => setCreating(true)}>
-        + Crear alimento propio
-      </button>
-
-      <div>
-        {results.length === 0 && <div className="empty">Sin resultados. Prueba a crear el alimento.</div>}
-        {results.map((f) => {
-          const cook = cookingMeta(f.cooking);
-          return (
+      {source === "local" ? (
+        <>
+          <div className="chips">
             <button
-              key={f.id}
-              className="food-item"
-              style={{ width: "100%", background: "transparent", border: "none", textAlign: "left" }}
-              onClick={() => {
-                setSelected(f);
-                setGrams(String(f.gramsPerUnit ?? 100));
-              }}
+              className={cookFilter === "all" ? "chip active" : "chip"}
+              onClick={() => setCookFilter("all")}
             >
-              <div className="food-main">
-                <div className="food-name">
-                  {f.name}{" "}
-                  {cook && (
-                    <span className="cook-badge">
-                      {cook.icon} {cook.label}
-                    </span>
-                  )}{" "}
-                  {f.custom && <span className="pill">Propio</span>}
-                </div>
-                <div className="food-sub">
-                  {round(f.calories)} kcal · P {f.protein} · C {f.carbs} · G {f.fat} (por 100 g)
-                </div>
-              </div>
-              <span style={{ color: "var(--green)", fontSize: "1.3rem" }}>＋</span>
+              Todos
             </button>
-          );
-        })}
-      </div>
+            {COOKING.map((c) => (
+              <button
+                key={c.id}
+                className={cookFilter === c.id ? "chip active" : "chip"}
+                onClick={() => setCookFilter(c.id)}
+              >
+                {c.icon} {c.label}
+              </button>
+            ))}
+          </div>
+
+          <button className="btn-ghost" style={{ width: "100%", margin: "4px 0 12px" }} onClick={() => setCreating(true)}>
+            + Crear alimento propio
+          </button>
+
+          <div>
+            {results.length === 0 && <div className="empty">Sin resultados. Prueba a crear el alimento.</div>}
+            {results.map((f) => (
+              <FoodResult key={f.id} food={f} onPick={() => pickFood(f)} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div style={{ marginTop: 12 }}>
+          {onlineLoading && <div className="empty">Buscando en Open Food Facts…</div>}
+          {onlineError && (
+            <p style={{ fontSize: "0.85rem", background: "#fef3c7", color: "#92400e", padding: "10px 12px", borderRadius: 10 }}>
+              ⚠️ {onlineError}
+            </p>
+          )}
+          {!onlineLoading && !onlineError && query.trim().length < 2 && (
+            <div className="empty">Escribe una marca o producto para buscar en la base abierta de Open Food Facts.</div>
+          )}
+          {!onlineLoading && !onlineError && query.trim().length >= 2 && onlineResults.length === 0 && (
+            <div className="empty">Sin resultados online. Prueba otro término o crea el alimento.</div>
+          )}
+          {onlineResults.map((f) => (
+            <FoodResult key={f.id} food={f} online onPick={() => pickFood(f, true)} />
+          ))}
+        </div>
+      )}
     </ModalShell>
+  );
+}
+
+function FoodResult({
+  food,
+  online,
+  onPick,
+}: {
+  food: Food;
+  online?: boolean;
+  onPick: () => void;
+}) {
+  const cook = cookingMeta(food.cooking);
+  return (
+    <button
+      className="food-item"
+      style={{ width: "100%", background: "transparent", border: "none", textAlign: "left" }}
+      onClick={onPick}
+    >
+      <div className="food-main">
+        <div className="food-name">
+          {food.name}{" "}
+          {food.brand && <span className="pill">{food.brand}</span>}{" "}
+          {cook && !online && (
+            <span className="cook-badge">
+              {cook.icon} {cook.label}
+            </span>
+          )}{" "}
+          {online && <span className="cook-badge">🌐 online</span>}
+        </div>
+        <div className="food-sub">
+          {round(food.calories)} kcal · P {food.protein} · C {food.carbs} · G {food.fat} (por 100 g)
+        </div>
+      </div>
+      <span style={{ color: "var(--green)", fontSize: "1.3rem" }}>＋</span>
+    </button>
   );
 }
 
@@ -234,6 +323,7 @@ function CreateFoodForm({
 }) {
   const store = useStore();
   const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
   const [portion, setPortion] = useState("100");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
@@ -253,6 +343,10 @@ function CreateFoodForm({
       <div className="field">
         <label>Nombre</label>
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+      </div>
+      <div className="field">
+        <label>Marca (opcional)</label>
+        <input className="input" placeholder="ej. La Serenísima" value={brand} onChange={(e) => setBrand(e.target.value)} />
       </div>
       <div className="field">
         <label>Cocción</label>
@@ -307,6 +401,7 @@ function CreateFoodForm({
           onClick={() => {
             const food = store.addCustomFood({
               name: name.trim(),
+              brand: brand.trim() || undefined,
               cooking,
               calories: portionToPer100(parseFloat(calories) || 0, portionG),
               protein: portionToPer100(parseFloat(protein) || 0, portionG),

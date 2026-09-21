@@ -83,6 +83,21 @@ export const FOOD_DATABASE: Food[] = [
   { id: "db-lomo-embuchado", name: "Lomo embuchado", cooking: "natural", calories: 250, protein: 40, carbs: 1, fat: 9 },
   { id: "db-chorizo", name: "Chorizo", cooking: "natural", calories: 455, protein: 24, carbs: 2, fat: 38 },
 
+  // ── Productos de marca (valores aproximados de etiqueta) ───
+  { id: "db-ls-leche-protein", name: "Leche Protein", brand: "La Serenísima", cooking: "natural", calories: 48, protein: 5.8, carbs: 5, fat: 1 },
+  { id: "db-ls-leche-entera", name: "Leche entera", brand: "La Serenísima", cooking: "natural", calories: 63, protein: 3.1, carbs: 4.7, fat: 3.4 },
+  { id: "db-ls-leche-descremada", name: "Leche descremada", brand: "La Serenísima", cooking: "natural", calories: 36, protein: 3.3, carbs: 4.8, fat: 0.5 },
+  { id: "db-ser-yogur-bebible", name: "Yogur descremado bebible", brand: "Ser", cooking: "natural", calories: 44, protein: 3.4, carbs: 6.5, fat: 0.1 },
+  { id: "db-ser-yogur-firme", name: "Yogur firme diet", brand: "Ser", cooking: "natural", calories: 40, protein: 4, carbs: 5.5, fat: 0.1 },
+  { id: "db-sancor-yogur-bebible", name: "Yogur bebible", brand: "Sancor", cooking: "natural", calories: 68, protein: 2.6, carbs: 11, fat: 1.2 },
+  { id: "db-yogurisimo-firme", name: "Yogur firme", brand: "Yogurísimo", cooking: "natural", calories: 75, protein: 3.2, carbs: 12, fat: 1.4 },
+  { id: "db-ls-casancrem", name: "Casancrem (queso untable)", brand: "La Serenísima", cooking: "natural", calories: 245, protein: 6, carbs: 4, fat: 23 },
+  { id: "db-mendicrim", name: "Mendicrim (queso untable)", brand: "Mendicrim", cooking: "natural", calories: 230, protein: 6.5, carbs: 4, fat: 21 },
+  { id: "db-ls-portsalut", name: "Port Salut", brand: "La Serenísima", cooking: "natural", calories: 300, protein: 18, carbs: 1, fat: 25 },
+  { id: "db-ls-dulcedeleche", name: "Dulce de leche", brand: "La Serenísima", cooking: "natural", calories: 315, protein: 6, carbs: 55, fat: 7 },
+  { id: "db-ls-manteca", name: "Manteca", brand: "La Serenísima", cooking: "natural", calories: 723, protein: 0.6, carbs: 0.6, fat: 80 },
+  { id: "db-quaker-avena", name: "Avena instantánea", brand: "Quaker", cooking: "natural", calories: 375, protein: 13, carbs: 62, fat: 7 },
+
   // ── Lácteos ────────────────────────────────────────────────
   { id: "db-leche-semi", name: "Leche semidesnatada", cooking: "natural", calories: 46, protein: 3.3, carbs: 4.8, fat: 1.6 },
   { id: "db-yogur-natural", name: "Yogur natural", cooking: "natural", calories: 61, protein: 3.5, carbs: 4.7, fat: 3.3 },

@@ -17,9 +17,15 @@ Sin cuentas, sin servidores y sin conexión necesaria.
   línea de meta, variación desde el inicio, distancia al objetivo e IMC.
 - **🥑 Alimentos** — base de datos de alimentos habituales **clasificados por cocción**
   (crudo, cocido, plancha, horno, frito, vapor, natural), con filtro por método y
-  variantes crudo/cocido donde los macros cambian (arroz, pasta, legumbres, carnes…).
-  Buscas, eliges la cantidad en gramos y ves al momento calorías y macros. También
-  puedes crear alimentos propios (con su porción y cocción) reutilizables.
+  variantes crudo/cocido donde los macros cambian (arroz, pasta, legumbres, carnes,
+  milanesas…). Buscas (sin importar acentos), eliges la cantidad en gramos y ves al
+  momento calorías y macros. También puedes crear alimentos propios (con marca, porción
+  y cocción) reutilizables.
+- **🏷️ Productos de marca** — productos de marca incluidos (La Serenísima, Ser, Sancor,
+  Mendicrim…) y una pestaña **"Marcas (online)"** que busca en
+  [Open Food Facts](https://world.openfoodfacts.org) (requiere conexión; degrada con
+  aviso si la red no está disponible). Los productos elegidos online se guardan en
+  "Mis alimentos" para reutilizarlos.
 - **🎯 Calculadora de objetivos** — a partir de sexo, edad, altura, peso actual,
   peso objetivo, nivel de actividad y plazo, estima tus **calorías diarias** y el
   **reparto de macros** (Mifflin-St Jeor + TDEE) y lo aplica como tus objetivos.
