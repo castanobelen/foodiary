@@ -16,11 +16,12 @@ Sin cuentas, sin servidores y sin conexión necesaria.
 - **⚖️ Peso** — registra tu peso por día, gráfico de evolución (30 / 90 días / 1 año / todo),
   línea de meta, variación desde el inicio, distancia al objetivo e IMC.
 - **🥑 Alimentos** — base de datos de alimentos habituales **clasificados por cocción**
-  (crudo, cocido, plancha, horno, frito, vapor, natural), con filtro por método y
-  variantes crudo/cocido donde los macros cambian (arroz, pasta, legumbres, carnes,
-  milanesas…). Buscas (sin importar acentos), eliges la cantidad en gramos y ves al
-  momento calorías y macros. También puedes crear alimentos propios (con marca, porción
-  y cocción) reutilizables.
+  (crudo, cocido, hervido, plancha, horno, frito, salteado, vapor, natural), con filtro
+  por método. En **carnes y pescado** la cocción se **elige al añadir** (plancha / horno /
+  hervido / salteado / frito; el crudo solo para pescado y verduras): el valor base es el
+  alimento cocido sin aceite y **salteado/frito suman el aceite** automáticamente. Buscas
+  (sin importar acentos), eliges la cantidad en gramos y ves al momento calorías y macros.
+  También puedes crear alimentos propios (con marca, porción y cocción) reutilizables.
 - **🏷️ Productos de marca** — la marca se muestra en el propio nombre
   (ej. *Leche Protein La Serenísima*). Los productos de marca incluidos localmente
   solo llevan **valores verificados de la tabla nutricional real**; para cualquier otra

@@ -14,18 +14,22 @@ export type CookingMethod =
   | "natural"
   | "crudo"
   | "cocido"
+  | "hervido"
   | "plancha"
   | "horno"
   | "frito"
+  | "salteado"
   | "vapor";
 
 export const COOKING: { id: CookingMethod; label: string; icon: string }[] = [
   { id: "natural", label: "Natural", icon: "🥗" },
   { id: "crudo", label: "Crudo", icon: "🥩" },
   { id: "cocido", label: "Cocido", icon: "🍲" },
+  { id: "hervido", label: "Hervido", icon: "🥣" },
   { id: "plancha", label: "Plancha", icon: "🔥" },
   { id: "horno", label: "Horno", icon: "🥖" },
   { id: "frito", label: "Frito", icon: "🍳" },
+  { id: "salteado", label: "Salteado", icon: "🥘" },
   { id: "vapor", label: "Vapor", icon: "💨" },
 ];
 
@@ -44,8 +48,12 @@ export interface Food {
   protein: number;
   carbs: number;
   fat: number;
-  // método de cocción con el que se pesa (crudo, cocido, plancha…)
+  // método de cocción fijo del alimento (crudo, cocido, plancha…)
   cooking?: CookingMethod;
+  // métodos de cocción entre los que se puede elegir al añadirlo (carnes,
+  // pescado…). Si se define, el valor base es el alimento cocido sin aceite;
+  // salteado y frito suman el aceite automáticamente.
+  methods?: CookingMethod[];
   // si el alimento se cuenta en unidades, cuántos gramos pesa 1 unidad
   gramsPerUnit?: number;
   custom?: boolean; // true si lo creó el usuario

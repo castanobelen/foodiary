@@ -3,7 +3,7 @@ import type { CookingMethod, Food, MealType } from "../lib/types";
 import { COOKING, cookingMeta, MEALS } from "../lib/types";
 import { useStore } from "../lib/store";
 import { searchBranded } from "../lib/openFoodFacts";
-import { foodLabel, macrosForGrams, portionToPer100, round } from "../lib/utils";
+import { applyCooking, foodLabel, macrosForGrams, portionToPer100, round } from "../lib/utils";
 
 interface Props {
   date: string;
@@ -18,6 +18,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
   const [source, setSource] = useState<"local" | "online">("local");
   const [cookFilter, setCookFilter] = useState<CookingMethod | "all">("all");
   const [selected, setSelected] = useState<Food | null>(null);
+  const [method, setMethod] = useState<CookingMethod | undefined>(undefined);
   const [grams, setGrams] = useState("100");
   const [creating, setCreating] = useState(false);
 
@@ -74,6 +75,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
           onCancel={() => setCreating(false)}
           onCreated={(food) => {
             setSelected(food);
+            setMethod(food.methods?.[0] ?? food.cooking);
             setGrams(String(food.gramsPerUnit ?? 100));
             setCreating(false);
           }}
@@ -84,20 +86,48 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
 
   if (selected) {
     const g = parseFloat(grams) || 0;
-    const m = macrosForGrams(selected, g);
+    const effective =
+      selected.methods && method ? applyCooking(selected, method) : selected;
+    const m = macrosForGrams(effective, g);
     const perUnit = selected.gramsPerUnit;
+    const oilMethod = method === "salteado" || method === "frito";
     return (
       <ModalShell title={foodLabel(selected)} onClose={onClose}>
         <div className="row-between" style={{ marginBottom: 12 }}>
           <button className="btn-ghost" onClick={() => setSelected(null)}>
             ‹ Cambiar alimento
           </button>
-          {cookingMeta(selected.cooking) && (
+          {!selected.methods && cookingMeta(selected.cooking) && (
             <span className="cook-badge">
               {cookingMeta(selected.cooking)!.icon} {cookingMeta(selected.cooking)!.label}
             </span>
           )}
         </div>
+
+        {selected.methods && (
+          <div className="field">
+            <label>Cocción</label>
+            <select
+              className="select"
+              value={method}
+              onChange={(e) => setMethod(e.target.value as CookingMethod)}
+            >
+              {selected.methods.map((id) => {
+                const c = cookingMeta(id);
+                return (
+                  <option key={id} value={id}>
+                    {c ? `${c.icon} ${c.label}` : id}
+                  </option>
+                );
+              })}
+            </select>
+            {oilMethod && (
+              <p className="muted" style={{ fontSize: "0.78rem", margin: "6px 0 0" }}>
+                Incluye el aceite de cocción (aprox.).
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="field">
           <label>Comida</label>
@@ -165,7 +195,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
           style={{ width: "100%", marginTop: 8 }}
           disabled={g <= 0}
           onClick={() => {
-            store.addDiaryEntry(date, meal, selected, g);
+            store.addDiaryEntry(date, meal, effective, g);
             onClose();
           }}
         >
@@ -178,6 +208,7 @@ export function AddFoodModal({ date, initialMeal, onClose }: Props) {
   const pickFood = (f: Food, imported = false) => {
     if (imported) store.importFood(f);
     setSelected(f);
+    setMethod(f.methods?.[0] ?? f.cooking);
     setGrams(String(f.gramsPerUnit ?? 100));
   };
 

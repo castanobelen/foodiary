@@ -1,4 +1,4 @@
-import type { DiaryEntry, Food, Targets } from "./types";
+import type { CookingMethod, DiaryEntry, Food, Targets } from "./types";
 
 export function todayISO(): string {
   return toISODate(new Date());
@@ -28,6 +28,25 @@ export function formatDateLabel(iso: string): string {
     day: "numeric",
     month: "short",
   });
+}
+
+// Aceite añadido aproximado por 100 g según el método de cocción.
+// plancha/horno/hervido/vapor no suman grasa; salteado y frito sí.
+const OIL_ADJUST: Partial<Record<CookingMethod, { kcal: number; fat: number }>> = {
+  salteado: { kcal: 45, fat: 5 },
+  frito: { kcal: 90, fat: 10 },
+};
+
+// Aplica el método de cocción a los valores base (por 100 g) de un alimento.
+export function applyCooking(food: Food, method: CookingMethod): Food {
+  const adj = OIL_ADJUST[method];
+  const base: Food = { ...food, cooking: method };
+  if (!adj) return base;
+  return {
+    ...base,
+    calories: Math.round(food.calories + adj.kcal),
+    fat: round(food.fat + adj.fat, 1),
+  };
 }
 
 // Nombre a mostrar: incluye la marca en el propio nombre (sin etiqueta aparte)

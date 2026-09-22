@@ -1,80 +1,66 @@
-import type { Food } from "./types";
+import type { CookingMethod, Food } from "./types";
+
+// Métodos de cocción elegibles al añadir el alimento.
+// Las carnes NO se comen crudas: se eligen plancha/horno/hervido/salteado/frito.
+const CARNE: CookingMethod[] = ["plancha", "horno", "hervido", "salteado", "frito"];
+// El pescado y algunos mariscos sí pueden ir crudos.
+const PESCADO: CookingMethod[] = ["crudo", "plancha", "horno", "hervido", "vapor", "salteado"];
 
 // Base de datos de alimentos incluida (valores aproximados por 100 g).
-// Muchos alimentos aparecen clasificados por cocción, porque los macros por
-// 100 g cambian bastante entre crudo y cocido (el cocido pierde/gana agua).
-// El usuario puede añadir los suyos, que se guardan aparte en localStorage.
+// En carnes/pescado el valor base es el alimento cocido sin aceite y la cocción
+// se elige al añadirlo (salteado y frito suman el aceite). El crudo queda para
+// el pescado y las verduras. El usuario puede añadir los suyos aparte.
 export const FOOD_DATABASE: Food[] = [
-  // ── Proteínas ──────────────────────────────────────────────
-  { id: "db-pollo-crudo", name: "Pechuga de pollo", cooking: "crudo", calories: 120, protein: 22.5, carbs: 0, fat: 2.6 },
-  { id: "db-pollo-plancha", name: "Pechuga de pollo", cooking: "plancha", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
-  { id: "db-pavo-crudo", name: "Pechuga de pavo", cooking: "crudo", calories: 105, protein: 24, carbs: 0, fat: 1 },
-  { id: "db-pavo-plancha", name: "Pechuga de pavo", cooking: "plancha", calories: 135, protein: 29, carbs: 0, fat: 1 },
-  { id: "db-ternera-crudo", name: "Ternera magra", cooking: "crudo", calories: 155, protein: 21, carbs: 0, fat: 7 },
-  { id: "db-ternera-plancha", name: "Ternera magra", cooking: "plancha", calories: 205, protein: 28, carbs: 0, fat: 10 },
-  { id: "db-cerdo-crudo", name: "Lomo de cerdo", cooking: "crudo", calories: 143, protein: 21, carbs: 0, fat: 6 },
-  { id: "db-cerdo-plancha", name: "Lomo de cerdo", cooking: "plancha", calories: 195, protein: 27, carbs: 0, fat: 9 },
-  { id: "db-salmon-crudo", name: "Salmón", cooking: "crudo", calories: 185, protein: 20, carbs: 0, fat: 12 },
-  { id: "db-salmon-plancha", name: "Salmón", cooking: "plancha", calories: 230, protein: 25, carbs: 0, fat: 14 },
-  { id: "db-salmon-horno", name: "Salmón", cooking: "horno", calories: 220, protein: 24, carbs: 0, fat: 13 },
-  { id: "db-merluza-crudo", name: "Merluza", cooking: "crudo", calories: 72, protein: 16, carbs: 0, fat: 0.9 },
-  { id: "db-merluza-plancha", name: "Merluza", cooking: "plancha", calories: 90, protein: 18, carbs: 0, fat: 2 },
+  // ── Aves ───────────────────────────────────────────────────
+  { id: "db-pollo-pechuga", name: "Pechuga de pollo", methods: CARNE, calories: 165, protein: 31, carbs: 0, fat: 3.6 },
+  { id: "db-pavo-pechuga", name: "Pechuga de pavo", methods: CARNE, calories: 135, protein: 29, carbs: 0, fat: 1 },
+  { id: "db-muslo-pollo", name: "Muslo de pollo", methods: CARNE, calories: 210, protein: 25, carbs: 0, fat: 12 },
+  { id: "db-contramuslo-pollo", name: "Contramuslo de pollo", methods: CARNE, calories: 177, protein: 24, carbs: 0, fat: 9 },
+  { id: "db-alitas-pollo", name: "Alitas de pollo", methods: CARNE, calories: 260, protein: 27, carbs: 0, fat: 17 },
+  { id: "db-jamoncitos-pollo", name: "Jamoncitos de pollo", methods: CARNE, calories: 185, protein: 27, carbs: 0, fat: 8 },
+  { id: "db-pollo-entero", name: "Pollo entero (con piel)", methods: CARNE, calories: 239, protein: 27, carbs: 0, fat: 14 },
+  { id: "db-pechuga-pollo-lonchas", name: "Pechuga de pollo en lonchas (fiambre)", cooking: "natural", calories: 110, protein: 20, carbs: 1.5, fat: 2.5 },
+  { id: "db-conejo", name: "Conejo", methods: CARNE, calories: 173, protein: 33, carbs: 0, fat: 3.5 },
+
+  // ── Pescado y mariscos (pueden ir crudos) ──────────────────
+  { id: "db-salmon", name: "Salmón", methods: PESCADO, calories: 208, protein: 22, carbs: 0, fat: 13 },
+  { id: "db-merluza", name: "Merluza", methods: PESCADO, calories: 85, protein: 17, carbs: 0, fat: 1.5 },
+  { id: "db-atun-fresco", name: "Atún fresco", methods: PESCADO, calories: 130, protein: 23, carbs: 0, fat: 4 },
   { id: "db-atun-lata", name: "Atún en lata (al natural)", cooking: "natural", calories: 116, protein: 26, carbs: 0, fat: 1 },
-  { id: "db-gambas-crudo", name: "Gambas", cooking: "crudo", calories: 85, protein: 20, carbs: 0.2, fat: 0.3 },
-  { id: "db-gambas-cocido", name: "Gambas", cooking: "cocido", calories: 99, protein: 24, carbs: 0.2, fat: 0.3 },
+  { id: "db-gambas", name: "Gambas / langostinos", methods: ["crudo", "plancha", "hervido", "salteado"], calories: 99, protein: 24, carbs: 0.2, fat: 0.3 },
+
+  // ── Huevo ──────────────────────────────────────────────────
   { id: "db-huevo-crudo", name: "Huevo", cooking: "crudo", calories: 143, protein: 13, carbs: 1.1, fat: 9.5, gramsPerUnit: 55 },
-  { id: "db-huevo-cocido", name: "Huevo cocido", cooking: "cocido", calories: 155, protein: 13, carbs: 1.1, fat: 11, gramsPerUnit: 55 },
+  { id: "db-huevo-cocido", name: "Huevo cocido / duro", cooking: "hervido", calories: 155, protein: 13, carbs: 1.1, fat: 11, gramsPerUnit: 55 },
   { id: "db-huevo-frito", name: "Huevo frito", cooking: "frito", calories: 196, protein: 14, carbs: 0.8, fat: 15, gramsPerUnit: 60 },
   { id: "db-clara", name: "Clara de huevo", cooking: "natural", calories: 52, protein: 11, carbs: 0.7, fat: 0.2 },
 
-  // ── Carnes y cortes ────────────────────────────────────────
+  // ── Carnes y cortes (cocción a elegir; valor base cocido sin aceite) ──
   // Ternera / vacuno
-  { id: "db-solomillo-ternera-crudo", name: "Solomillo de ternera", cooking: "crudo", calories: 158, protein: 21, carbs: 0, fat: 8 },
-  { id: "db-solomillo-ternera-plancha", name: "Solomillo de ternera", cooking: "plancha", calories: 210, protein: 29, carbs: 0, fat: 10 },
-  { id: "db-entrecot-crudo", name: "Entrecot de ternera", cooking: "crudo", calories: 250, protein: 19, carbs: 0, fat: 19 },
-  { id: "db-entrecot-plancha", name: "Entrecot de ternera", cooking: "plancha", calories: 290, protein: 26, carbs: 0, fat: 21 },
-  { id: "db-redondo-ternera", name: "Redondo de ternera", cooking: "crudo", calories: 131, protein: 21, carbs: 0, fat: 5 },
-  { id: "db-picada-ternera", name: "Carne picada de ternera", cooking: "crudo", calories: 215, protein: 18, carbs: 0, fat: 15 },
-  { id: "db-picada-ternera-magra", name: "Carne picada de ternera magra", cooking: "crudo", calories: 137, protein: 21, carbs: 0, fat: 5 },
-  { id: "db-hamburguesa-ternera", name: "Hamburguesa de ternera", cooking: "plancha", calories: 250, protein: 25, carbs: 1, fat: 16 },
-  { id: "db-nalga-crudo", name: "Nalga (ternera)", cooking: "crudo", calories: 116, protein: 22, carbs: 0, fat: 3 },
-  { id: "db-nalga-plancha", name: "Nalga (ternera)", cooking: "plancha", calories: 175, protein: 30, carbs: 0, fat: 6 },
-  { id: "db-bola-lomo-crudo", name: "Bola de lomo (ternera)", cooking: "crudo", calories: 130, protein: 21, carbs: 0, fat: 5 },
-  { id: "db-bola-lomo-plancha", name: "Bola de lomo (ternera)", cooking: "plancha", calories: 195, protein: 29, carbs: 0, fat: 8 },
-  { id: "db-peceto-crudo", name: "Peceto (ternera)", cooking: "crudo", calories: 116, protein: 22, carbs: 0, fat: 3 },
-  { id: "db-peceto-plancha", name: "Peceto (ternera)", cooking: "plancha", calories: 175, protein: 30, carbs: 0, fat: 5 },
-  { id: "db-colita-cuadril-crudo", name: "Colita de cuadril (ternera)", cooking: "crudo", calories: 135, protein: 21, carbs: 0, fat: 5.5 },
-  { id: "db-colita-cuadril-plancha", name: "Colita de cuadril (ternera)", cooking: "plancha", calories: 200, protein: 29, carbs: 0, fat: 9 },
-  { id: "db-asado-tira-crudo", name: "Asado / tira de asado (ternera)", cooking: "crudo", calories: 290, protein: 16, carbs: 0, fat: 25 },
-  { id: "db-asado-tira-plancha", name: "Asado / tira de asado (ternera)", cooking: "plancha", calories: 330, protein: 23, carbs: 0, fat: 26 },
-  { id: "db-bife-ancho-crudo", name: "Bife ancho / ojo de bife (ternera)", cooking: "crudo", calories: 250, protein: 19, carbs: 0, fat: 19 },
-  { id: "db-bife-ancho-plancha", name: "Bife ancho / ojo de bife (ternera)", cooking: "plancha", calories: 291, protein: 25, carbs: 0, fat: 21 },
-  { id: "db-bife-angosto-crudo", name: "Bife angosto / chorizo (ternera)", cooking: "crudo", calories: 200, protein: 21, carbs: 0, fat: 13 },
-  { id: "db-bife-angosto-plancha", name: "Bife angosto / chorizo (ternera)", cooking: "plancha", calories: 245, protein: 28, carbs: 0, fat: 15 },
-  { id: "db-picana-crudo", name: "Picaña / tapa de cuadril (ternera)", cooking: "crudo", calories: 210, protein: 18, carbs: 0, fat: 15 },
-  { id: "db-picana-plancha", name: "Picaña / tapa de cuadril (ternera)", cooking: "plancha", calories: 250, protein: 25, carbs: 0, fat: 17 },
-  { id: "db-roastbeef-crudo", name: "Roast beef (ternera)", cooking: "crudo", calories: 150, protein: 21, carbs: 0, fat: 7 },
-  { id: "db-roastbeef-horno", name: "Roast beef (ternera)", cooking: "horno", calories: 215, protein: 29, carbs: 0, fat: 10 },
+  { id: "db-solomillo-ternera", name: "Solomillo de ternera", methods: CARNE, calories: 210, protein: 29, carbs: 0, fat: 10 },
+  { id: "db-entrecot", name: "Entrecot de ternera", methods: CARNE, calories: 291, protein: 26, carbs: 0, fat: 21 },
+  { id: "db-redondo-ternera", name: "Redondo de ternera", methods: CARNE, calories: 175, protein: 28, carbs: 0, fat: 6 },
+  { id: "db-picada-ternera", name: "Carne picada de ternera", methods: CARNE, calories: 250, protein: 26, carbs: 0, fat: 17 },
+  { id: "db-picada-ternera-magra", name: "Carne picada de ternera magra", methods: CARNE, calories: 180, protein: 27, carbs: 0, fat: 8 },
+  { id: "db-hamburguesa-ternera", name: "Hamburguesa de ternera", methods: CARNE, calories: 250, protein: 25, carbs: 1, fat: 16 },
+  { id: "db-nalga", name: "Nalga (ternera)", methods: CARNE, calories: 175, protein: 30, carbs: 0, fat: 6 },
+  { id: "db-bola-lomo", name: "Bola de lomo (ternera)", methods: CARNE, calories: 195, protein: 29, carbs: 0, fat: 8 },
+  { id: "db-peceto", name: "Peceto (ternera)", methods: CARNE, calories: 175, protein: 30, carbs: 0, fat: 5 },
+  { id: "db-colita-cuadril", name: "Colita de cuadril (ternera)", methods: CARNE, calories: 200, protein: 29, carbs: 0, fat: 9 },
+  { id: "db-asado-tira", name: "Asado / tira de asado (ternera)", methods: CARNE, calories: 330, protein: 23, carbs: 0, fat: 26 },
+  { id: "db-bife-ancho", name: "Bife ancho / ojo de bife (ternera)", methods: CARNE, calories: 291, protein: 25, carbs: 0, fat: 21 },
+  { id: "db-bife-angosto", name: "Bife angosto / chorizo (ternera)", methods: CARNE, calories: 245, protein: 28, carbs: 0, fat: 15 },
+  { id: "db-picana", name: "Picaña / tapa de cuadril (ternera)", methods: CARNE, calories: 250, protein: 25, carbs: 0, fat: 17 },
+  { id: "db-roastbeef", name: "Roast beef (ternera)", methods: CARNE, calories: 215, protein: 29, carbs: 0, fat: 10 },
   // Cerdo
-  { id: "db-solomillo-cerdo-crudo", name: "Solomillo de cerdo", cooking: "crudo", calories: 120, protein: 21, carbs: 0, fat: 3.5 },
-  { id: "db-solomillo-cerdo-plancha", name: "Solomillo de cerdo", cooking: "plancha", calories: 165, protein: 27, carbs: 0, fat: 6 },
-  { id: "db-costillas-cerdo", name: "Costillas de cerdo", cooking: "horno", calories: 290, protein: 22, carbs: 0, fat: 22 },
-  { id: "db-secreto-iberico", name: "Secreto ibérico", cooking: "plancha", calories: 290, protein: 18, carbs: 0, fat: 24 },
-  { id: "db-panceta-bacon", name: "Panceta / bacon", cooking: "frito", calories: 540, protein: 37, carbs: 1.4, fat: 42 },
-  { id: "db-picada-cerdo", name: "Carne picada de cerdo", cooking: "crudo", calories: 263, protein: 17, carbs: 0, fat: 21 },
+  { id: "db-solomillo-cerdo", name: "Solomillo de cerdo", methods: CARNE, calories: 165, protein: 27, carbs: 0, fat: 6 },
+  { id: "db-costillas-cerdo", name: "Costillas de cerdo", methods: CARNE, calories: 290, protein: 22, carbs: 0, fat: 22 },
+  { id: "db-secreto-iberico", name: "Secreto ibérico", methods: CARNE, calories: 290, protein: 18, carbs: 0, fat: 24 },
+  { id: "db-lomo-cerdo", name: "Lomo de cerdo", methods: CARNE, calories: 195, protein: 27, carbs: 0, fat: 9 },
+  { id: "db-panceta-bacon", name: "Panceta / bacon", methods: CARNE, calories: 500, protein: 37, carbs: 1, fat: 40 },
+  { id: "db-picada-cerdo", name: "Carne picada de cerdo", methods: CARNE, calories: 300, protein: 26, carbs: 0, fat: 22 },
   // Cordero
-  { id: "db-chuleta-cordero", name: "Chuleta de cordero", cooking: "plancha", calories: 294, protein: 25, carbs: 0, fat: 21 },
-  // Pollo (más cortes)
-  { id: "db-muslo-pollo-crudo", name: "Muslo de pollo", cooking: "crudo", calories: 160, protein: 17, carbs: 0, fat: 10 },
-  { id: "db-muslo-pollo-plancha", name: "Muslo de pollo", cooking: "plancha", calories: 220, protein: 25, carbs: 0, fat: 13 },
-  { id: "db-contramuslo-pollo-crudo", name: "Contramuslo de pollo", cooking: "crudo", calories: 121, protein: 19, carbs: 0, fat: 4.5 },
-  { id: "db-contramuslo-pollo-plancha", name: "Contramuslo de pollo", cooking: "plancha", calories: 177, protein: 24, carbs: 0, fat: 9 },
-  { id: "db-alitas-pollo", name: "Alitas de pollo", cooking: "horno", calories: 260, protein: 27, carbs: 0, fat: 17 },
-  { id: "db-jamoncitos-pollo", name: "Jamoncitos de pollo", cooking: "horno", calories: 172, protein: 28, carbs: 0, fat: 6 },
-  { id: "db-pollo-entero-asado", name: "Pollo entero asado (con piel)", cooking: "horno", calories: 239, protein: 27, carbs: 0, fat: 14 },
-  { id: "db-pechuga-pollo-lonchas", name: "Pechuga de pollo en lonchas (fiambre)", cooking: "natural", calories: 110, protein: 20, carbs: 1.5, fat: 2.5 },
-  // Conejo
-  { id: "db-conejo", name: "Conejo", cooking: "plancha", calories: 173, protein: 33, carbs: 0, fat: 3.5 },
+  { id: "db-chuleta-cordero", name: "Chuleta de cordero", methods: CARNE, calories: 294, protein: 25, carbs: 0, fat: 21 },
 
   // ── Milanesas (empanadas) ──────────────────────────────────
   { id: "db-mila-nalga-frita", name: "Milanesa de nalga", cooking: "frito", calories: 270, protein: 20, carbs: 15, fat: 15 },
@@ -141,6 +127,33 @@ export const FOOD_DATABASE: Food[] = [
   { id: "db-calabacin-crudo", name: "Calabacín", cooking: "crudo", calories: 17, protein: 1.2, carbs: 3.1, fat: 0.3 },
   { id: "db-calabacin-plancha", name: "Calabacín", cooking: "plancha", calories: 20, protein: 1.4, carbs: 3.5, fat: 0.4 },
   { id: "db-cebolla", name: "Cebolla", cooking: "crudo", calories: 40, protein: 1.1, carbs: 9, fat: 0.1 },
+  { id: "db-berenjena-crudo", name: "Berenjena", cooking: "crudo", calories: 25, protein: 1, carbs: 6, fat: 0.2 },
+  { id: "db-berenjena-plancha", name: "Berenjena", cooking: "plancha", calories: 35, protein: 1, carbs: 8, fat: 0.3 },
+  { id: "db-coliflor-crudo", name: "Coliflor", cooking: "crudo", calories: 25, protein: 1.9, carbs: 5, fat: 0.3 },
+  { id: "db-coliflor-vapor", name: "Coliflor", cooking: "vapor", calories: 23, protein: 1.8, carbs: 4, fat: 0.1 },
+  { id: "db-chaucha-crudo", name: "Chaucha / judía verde", cooking: "crudo", calories: 31, protein: 1.8, carbs: 7, fat: 0.1 },
+  { id: "db-chaucha-cocido", name: "Chaucha / judía verde", cooking: "cocido", calories: 35, protein: 1.9, carbs: 7.9, fat: 0.3 },
+  { id: "db-choclo", name: "Choclo / maíz", cooking: "cocido", calories: 96, protein: 3.4, carbs: 21, fat: 1.5, gramsPerUnit: 150 },
+  { id: "db-zapallo-crudo", name: "Zapallo / calabaza", cooking: "crudo", calories: 26, protein: 1, carbs: 6.5, fat: 0.1 },
+  { id: "db-zapallo-horno", name: "Zapallo / calabaza", cooking: "horno", calories: 40, protein: 1, carbs: 10, fat: 0.1 },
+  { id: "db-batata-crudo", name: "Batata / boniato", cooking: "crudo", calories: 86, protein: 1.6, carbs: 20, fat: 0.1 },
+  { id: "db-batata-horno", name: "Batata / boniato", cooking: "horno", calories: 90, protein: 2, carbs: 21, fat: 0.1 },
+  { id: "db-remolacha-crudo", name: "Remolacha", cooking: "crudo", calories: 43, protein: 1.6, carbs: 10, fat: 0.2 },
+  { id: "db-remolacha-cocido", name: "Remolacha", cooking: "cocido", calories: 44, protein: 1.7, carbs: 10, fat: 0.2 },
+  { id: "db-champinon-crudo", name: "Champiñón / hongos", cooking: "crudo", calories: 22, protein: 3.1, carbs: 3.3, fat: 0.3 },
+  { id: "db-champinon-plancha", name: "Champiñón / hongos", cooking: "plancha", calories: 28, protein: 3.9, carbs: 4, fat: 0.4 },
+  { id: "db-acelga-crudo", name: "Acelga", cooking: "crudo", calories: 19, protein: 1.8, carbs: 3.7, fat: 0.2 },
+  { id: "db-acelga-cocido", name: "Acelga", cooking: "cocido", calories: 20, protein: 1.9, carbs: 4, fat: 0.1 },
+  { id: "db-rucula", name: "Rúcula", cooking: "crudo", calories: 25, protein: 2.6, carbs: 3.7, fat: 0.7 },
+  { id: "db-pepino", name: "Pepino", cooking: "crudo", calories: 15, protein: 0.7, carbs: 3.6, fat: 0.1 },
+  { id: "db-apio", name: "Apio", cooking: "crudo", calories: 16, protein: 0.7, carbs: 3, fat: 0.2 },
+  { id: "db-puerro", name: "Puerro", cooking: "crudo", calories: 61, protein: 1.5, carbs: 14, fat: 0.3 },
+  { id: "db-repollo", name: "Repollo", cooking: "crudo", calories: 25, protein: 1.3, carbs: 6, fat: 0.1 },
+  { id: "db-arvejas", name: "Arvejas / guisantes", cooking: "cocido", calories: 84, protein: 5.4, carbs: 15, fat: 0.2 },
+  { id: "db-esparragos-crudo", name: "Espárragos", cooking: "crudo", calories: 20, protein: 2.2, carbs: 3.9, fat: 0.1 },
+  { id: "db-esparragos-plancha", name: "Espárragos", cooking: "plancha", calories: 22, protein: 2.4, carbs: 4, fat: 0.2 },
+  { id: "db-rabanito", name: "Rabanito", cooking: "crudo", calories: 16, protein: 0.7, carbs: 3.4, fat: 0.1 },
+  { id: "db-choclo-crudo", name: "Choclo / maíz", cooking: "crudo", calories: 86, protein: 3.2, carbs: 19, fat: 1.2, gramsPerUnit: 150 },
 
   // ── Frutas ─────────────────────────────────────────────────
   { id: "db-platano", name: "Plátano", cooking: "natural", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, gramsPerUnit: 120 },

@@ -18,7 +18,7 @@ import type {
 } from "./types";
 import { cookingMeta } from "./types";
 import { FOOD_DATABASE } from "./foodDatabase";
-import { defaultTargets, foodLabel, macrosForGrams, uid } from "./utils";
+import { defaultTargets, foodLabel, macrosForGrams, round, uid } from "./utils";
 
 const STORAGE_KEY = "foodiary.data.v1";
 const DATA_VERSION = 1;
@@ -103,7 +103,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const term = normalize(q);
         let list = allFoods;
         if (cooking !== "all") {
-          list = list.filter((f) => f.cooking === cooking);
+          list = list.filter(
+            (f) => f.cooking === cooking || f.methods?.includes(cooking),
+          );
         }
         if (term) {
           list = list.filter((f) =>
@@ -151,20 +153,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
 
       updateDiaryEntry(id, grams) {
+        // Escala lineal desde lo ya registrado: preserva la cocción/aceite y la
+        // marca con que se guardó la entrada (no re-busca el alimento base).
         setData((d) => ({
           ...d,
           diary: d.diary.map((e) => {
             if (e.id !== id) return e;
-            const food =
-              allFoods.find((f) => f.id === e.foodId) ??
-              ({
-                calories: (e.calories / e.grams) * 100 || 0,
-                protein: (e.protein / e.grams) * 100 || 0,
-                carbs: (e.carbs / e.grams) * 100 || 0,
-                fat: (e.fat / e.grams) * 100 || 0,
-              } as Food);
-            const m = macrosForGrams(food, grams);
-            return { ...e, grams, ...m };
+            const factor = e.grams > 0 ? grams / e.grams : 0;
+            return {
+              ...e,
+              grams,
+              calories: Math.round(e.calories * factor),
+              protein: round(e.protein * factor, 1),
+              carbs: round(e.carbs * factor, 1),
+              fat: round(e.fat * factor, 1),
+            };
           }),
         }));
       },
