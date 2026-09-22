@@ -94,6 +94,11 @@ export const FOOD_DATABASE: Food[] = [
   { id: "db-queso-fresco", name: "Queso fresco batido 0%", cooking: "natural", calories: 47, protein: 8, carbs: 4, fat: 0.2 },
   { id: "db-queso-curado", name: "Queso curado", cooking: "natural", calories: 402, protein: 25, carbs: 1.4, fat: 33 },
   { id: "db-requeson", name: "Requesón / cottage", cooking: "natural", calories: 98, protein: 11, carbs: 3.4, fat: 4.3 },
+  { id: "db-queso-azul", name: "Queso azul / roquefort", cooking: "natural", calories: 353, protein: 21, carbs: 2.3, fat: 29 },
+  { id: "db-queso-pategras", name: "Queso pategrás", cooking: "natural", calories: 360, protein: 25, carbs: 2, fat: 28 },
+  { id: "db-queso-cremoso", name: "Queso cremoso", cooking: "natural", calories: 300, protein: 18, carbs: 2, fat: 24 },
+  { id: "db-queso-rallado", name: "Queso rallado (tipo parmesano)", cooking: "natural", calories: 430, protein: 38, carbs: 3.5, fat: 29 },
+  { id: "db-queso-mozzarella", name: "Muzzarella", cooking: "natural", calories: 280, protein: 22, carbs: 2.2, fat: 21 },
 
   // ── Cereales y féculas ─────────────────────────────────────
   { id: "db-arroz-blanco-crudo", name: "Arroz blanco", cooking: "crudo", calories: 360, protein: 7, carbs: 79, fat: 0.6 },
